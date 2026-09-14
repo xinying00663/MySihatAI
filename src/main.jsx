@@ -16,6 +16,84 @@ const scenarios = {
   },
 }
 
+function getVoicesAsync() {
+  return new Promise((resolve) => {
+    const voices = window.speechSynthesis.getVoices()
+    if (voices.length) return resolve(voices)
+    const handle = () => {
+      window.speechSynthesis.removeEventListener('voiceschanged', handle)
+      resolve(window.speechSynthesis.getVoices())
+    }
+    window.speechSynthesis.addEventListener('voiceschanged', handle)
+    setTimeout(() => {
+      window.speechSynthesis.removeEventListener('voiceschanged', handle)
+      resolve(window.speechSynthesis.getVoices())
+    }, 1200)
+  })
+}
+
+function pickVoiceFromList(voices, lang) {
+  const lc = lang.toLowerCase()
+  if (lc === 'ms-my') {
+    return (
+      voices.find((v) => v.lang.toLowerCase() === 'ms-my') ||
+      voices.find((v) => v.lang.toLowerCase() === 'ms') ||
+      voices.find((v) => v.lang.toLowerCase().startsWith('ms')) ||
+      voices.find((v) => /melayu/i.test(v.name)) ||
+      voices.find((v) => /malay.*malaysia|malaysia.*malay/i.test(v.name)) ||
+      voices.find((v) => /malay/i.test(v.name)) ||
+      voices.find((v) => /malaysia/i.test(v.name)) ||
+      null
+    )
+  }
+  return voices.find((v) => v.lang.toLowerCase() === lc) || voices.find((v) => v.lang.toLowerCase().startsWith(lc.split('-')[0])) || null
+}
+
+let networkAudio = null
+
+async function speakWithNativeVoice(text, lang) {
+  window.speechSynthesis.cancel()
+  if (networkAudio) {
+    networkAudio.pause()
+    networkAudio = null
+  }
+  const voices = await getVoicesAsync()
+  const lc = lang.toLowerCase()
+
+  if (lc === 'ms-my') {
+    let voice = pickVoiceFromList(voices, 'ms-MY')
+    if (!voice) {
+      voice = pickVoiceFromList(voices, 'id-ID') || voices.find((v) => v.lang.toLowerCase().startsWith('id'))
+    }
+    if (voice) {
+      const utter = new SpeechSynthesisUtterance(text)
+      utter.lang = voice.lang
+      utter.voice = voice
+      utter.rate = 0.9
+      window.speechSynthesis.speak(utter)
+      return
+    }
+    try {
+      const encoded = encodeURIComponent(text)
+      const url = `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=ms&q=${encoded}`
+      networkAudio = new Audio(url)
+      networkAudio.crossOrigin = 'anonymous'
+      await networkAudio.play()
+      return
+    } catch {
+      console.warn('Malay voice unavailable: no native ms-MY/id-ID voice and network TTS blocked. Install Malay pack: Windows Settings > Time & Language > Add Malay (Malaysia) > Text-to-speech.')
+      return
+    }
+  }
+
+  const voice = pickVoiceFromList(voices, lang)
+  const utter = new SpeechSynthesisUtterance(text)
+  utter.lang = lang
+  utter.rate = 0.9
+  if (voice) utter.voice = voice
+  window.speechSynthesis.speak(utter)
+}
+
 function App() {
   const [stage, setStage] = React.useState('start')
   const [recording, setRecording] = React.useState(false)
@@ -40,17 +118,23 @@ function App() {
     if (audioUrl) URL.revokeObjectURL(audioUrl)
   }, [audioUrl])
 
+  React.useEffect(() => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.getVoices()
+      const warm = () => window.speechSynthesis.getVoices()
+      window.speechSynthesis.addEventListener('voiceschanged', warm)
+      return () => window.speechSynthesis.removeEventListener('voiceschanged', warm)
+    }
+  }, [])
+
   function connectCall() {
     setStage('connected')
     setSelectedScenario(null)
     setResult(null)
     if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel()
       const promptText = language === 'en' ? 'What is troubling you? Please tell me. I am listening.' : 'Apa masalah anda? Ceritakan kepada saya. Saya sedang mendengar.'
-      const prompt = new SpeechSynthesisUtterance(promptText)
-      prompt.lang = language === 'en' ? 'en-US' : 'ms-MY'
-      prompt.rate = 0.9
-      window.speechSynthesis.speak(prompt)
+      const targetLang = language === 'en' ? 'en-US' : 'ms-MY'
+      speakWithNativeVoice(promptText, targetLang)
     }
   }
 
@@ -116,6 +200,10 @@ function App() {
     mediaRecorder.current?.stop()
     stream.current?.getTracks().forEach((track) => track.stop())
     if (audioUrl) URL.revokeObjectURL(audioUrl)
+    if (networkAudio) {
+      networkAudio.pause()
+      networkAudio = null
+    }
     setStage('start')
     setRecording(false)
     setAudioUrl('')
