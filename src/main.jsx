@@ -137,7 +137,6 @@ function App() {
       </header>
 
       <section className="hero">
-        <div className="eyebrow"><span className="live-dot" /> Judge-ready prototype</div>
         <h1>Call. Speak. Get care guidance.</h1>
         <p>Try the rural hotline exactly as a patient would. No login, no form, no medical jargon.</p>
         <div className="trust-row"><span><ShieldCheck size={15} /> Private demo</span><span><Volume2 size={15} /> Bahasa Melayu ready</span><span><Phone size={15} /> 1-800-88-SIHAT</span></div>
