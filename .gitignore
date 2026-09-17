@@ -5,3 +5,5 @@ dist/
 !.env.example
 .vscode/
 
+# Playwright CLI output (may contain credentials)
+.playwright-cli/
