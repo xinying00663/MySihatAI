@@ -1,6 +1,6 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { Activity, ArrowRight, Check, Clock3, Delete, Globe2, Mic, Phone, PhoneCall, RotateCcw, ShieldCheck, Sparkles, Square, Upload, Volume2 } from 'lucide-react'
+import { Activity, AlertCircle, ArrowRight, Check, Clock3, Delete, Globe2, LocateFixed, MapPin, Mic, Navigation, Package, Phone, PhoneCall, RotateCcw, Search, ShieldCheck, Sparkles, Square, Store, Upload, Volume2 } from 'lucide-react'
 import './styles.css'
 
 const scenarios = {
@@ -16,6 +16,76 @@ const scenarios = {
     zh: { transcript: '只是普通发烧，有点流鼻涕，呼吸正常。', reply: '了解。目前症状较轻，请多喝水、多休息并观察变化。我会通过短信发送居家护理建议。', title: 'GREEN · 居家护理建议', detail: '未检测到呼吸道警示，请留意症状变化。', metrics: ['声音抖动正常', '呼吸模式正常', '咳嗽频率低'] },
     tone: 'success',
   },
+}
+
+// Curated mock pharmacies — Klang Valley + spread for demo, no API key needed
+const MOCK_PHARMACIES = [
+  { id: 1, name: 'Caring Pharmacy', branch: 'Sunway Pyramid', address: 'Lot LG1.08, Sunway Pyramid, Bandar Sunway', city: 'Petaling Jaya', lat: 3.0733, lon: 101.6079, phone: '03-5621 1888', hours: '10am – 10pm' },
+  { id: 2, name: 'Watsons', branch: 'KLCC Suria', address: 'Suria KLCC, Kuala Lumpur', city: 'Kuala Lumpur', lat: 3.1580, lon: 101.7118, phone: '03-2380 8300', hours: '10am – 10pm' },
+  { id: 3, name: 'Guardian', branch: 'Mid Valley', address: 'Mid Valley Megamall, Kuala Lumpur', city: 'Kuala Lumpur', lat: 3.1185, lon: 101.6762, phone: '03-2287 8889', hours: '10am – 10pm' },
+  { id: 4, name: 'Alpro Pharmacy', branch: 'SS15 Subang', address: 'No. 57 Jalan SS15/4, Subang Jaya', city: 'Subang Jaya', lat: 3.0730, lon: 101.5880, phone: '03-5611 7273', hours: '9am – 10pm' },
+  { id: 5, name: 'Big Pharmacy', branch: 'Setapak Central', address: 'Setapak Central Mall, KL', city: 'Kuala Lumpur', lat: 3.2040, lon: 101.7255, phone: '03-4141 9988', hours: '10am – 10pm' },
+  { id: 6, name: 'Caring Pharmacy', branch: 'Puchong IOI', address: 'IOI Mall Puchong, Puchong', city: 'Puchong', lat: 3.0248, lon: 101.6194, phone: '03-8076 8811', hours: '10am – 10pm' },
+  { id: 7, name: 'Watsons', branch: 'Bangsar Village', address: 'Bangsar Village, Kuala Lumpur', city: 'Kuala Lumpur', lat: 3.1287, lon: 101.6701, phone: '03-2284 8666', hours: '10am – 10pm' },
+  { id: 8, name: 'Health Lane Pharmacy', branch: 'Ampang Point', address: 'Ampang Point Shopping Centre', city: 'Ampang', lat: 3.1596, lon: 101.7565, phone: '03-4256 8822', hours: '10am – 10pm' },
+  { id: 9, name: 'AA Pharmacy', branch: 'Shah Alam Seksyen 7', address: 'Jalan Plumbum P7/P, Shah Alam', city: 'Shah Alam', lat: 3.0650, lon: 101.4960, phone: '03-5523 1120', hours: '9am – 10pm' },
+  { id: 10, name: 'Guardian', branch: 'Kajang', address: 'Metro Point Kajang', city: 'Kajang', lat: 2.9935, lon: 101.7870, phone: '03-8733 4477', hours: '10am – 10pm' },
+  { id: 11, name: 'Caring Pharmacy', branch: 'Penang Gurney', address: 'Gurney Plaza, Penang', city: 'George Town', lat: 5.4350, lon: 100.3090, phone: '04-228 0111', hours: '10am – 10pm' },
+  { id: 12, name: 'Watsons', branch: 'JB City Square', address: 'City Square Johor Bahru', city: 'Johor Bahru', lat: 1.4620, lon: 103.7640, phone: '07-223 8899', hours: '10am – 10pm' },
+  { id: 13, name: 'Big Pharmacy', branch: 'Kuantan East Coast Mall', address: 'East Coast Mall, Kuantan', city: 'Kuantan', lat: 3.8100, lon: 103.3260, phone: '09-560 8899', hours: '10am – 10pm' },
+  { id: 14, name: 'Alpro Pharmacy', branch: 'Ipoh Parade', address: 'Ipoh Parade, Ipoh', city: 'Ipoh', lat: 4.5975, lon: 101.0901, phone: '05-242 1100', hours: '10am – 10pm' },
+  { id: 15, name: 'Guardian', branch: 'Kuching Viva', address: 'Vivacity Megamall, Kuching', city: 'Kuching', lat: 1.5550, lon: 110.3550, phone: '082-555 001', hours: '10am – 10pm' },
+  { id: 16, name: 'Caring Pharmacy', branch: 'Kota Kinabalu Imago', address: 'Imago Shopping Mall, KK', city: 'Kota Kinabalu', lat: 5.9770, lon: 116.0720, phone: '088-255 100', hours: '10am – 10pm' },
+]
+
+const CARE_PRODUCTS = {
+  serious: {
+    en: [
+      { name: 'Digital pulse oximeter', desc: 'Help monitor oxygen at home — ask pharmacist to demo use.', tag: 'Device' },
+      { name: 'Disposable 3-ply masks', desc: 'Reduce spread while traveling to clinic.', tag: 'Protection' },
+      { name: 'ORS + water bottle', desc: 'Stay hydrated while awaiting assessment.', tag: 'Hydration' },
+    ],
+    bm: [
+      { name: 'Oksimeter nadi digital', desc: 'Bantu pantau oksigen di rumah — minta tunjuk cara di farmasi.', tag: 'Alat' },
+      { name: 'Pelitup muka 3-lapis', desc: 'Kurangkan jangkitan semasa ke klinik.', tag: 'Perlindungan' },
+      { name: 'Garam ORS + botol air', desc: 'Kekal hidrasi sementara menunggu pemeriksaan.', tag: 'Hidrasi' },
+    ],
+    zh: [
+      { name: '指夹式血氧仪', desc: '在家监测血氧，请让药剂师演示用法。', tag: '设备' },
+      { name: '一次性医用口罩', desc: '前往诊所途中减少传播。', tag: '防护' },
+      { name: '口服补液盐 + 水壶', desc: '等待就诊期间保持水分。', tag: '补水' },
+    ],
+  },
+  mild: {
+    en: [
+      { name: 'Digital thermometer', desc: 'Track fever at home — easy for family use.', tag: 'Device' },
+      { name: 'Honey-lemon lozenges', desc: 'Soothe throat, non-medicated option.', tag: 'Comfort' },
+      { name: 'Oral rehydration salts', desc: 'For fever & mild cold recovery.', tag: 'Hydration' },
+    ],
+    bm: [
+      { name: 'Termometer digital', desc: 'Pantau demam di rumah — mudah untuk keluarga.', tag: 'Alat' },
+      { name: 'Lozeng madu-lemon', desc: 'Legakan tekak, pilihan tanpa ubat.', tag: 'Keselesaan' },
+      { name: 'Garam rehidrasi oral', desc: 'Untuk pemulihan demam ringan.', tag: 'Hidrasi' },
+    ],
+    zh: [
+      { name: '电子体温计', desc: '在家监测体温，全家适用。', tag: '设备' },
+      { name: '蜂蜜柠檬润喉糖', desc: '缓解喉咙不适，非药物。', tag: '舒缓' },
+      { name: '口服补液盐', desc: '轻度感冒发烧恢复用。', tag: '补水' },
+    ],
+  },
+}
+
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const R = 6371
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLon = (lon2 - lon1) * Math.PI / 180
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return R * c
+}
+function formatDistance(km) {
+  if (km < 1) return `${Math.round(km * 1000)} m`
+  return `${km.toFixed(1)} km`
 }
 
 function getVoicesAsync() {
@@ -96,6 +166,17 @@ function App() {
   const [callerNumber, setCallerNumber] = React.useState('')
   const [language, setLanguage] = React.useState('en')
   const [scrolled, setScrolled] = React.useState(false)
+  // location / pharmacyfinder state
+  const [userLocation, setUserLocation] = React.useState(null)
+  const [locStatus, setLocStatus] = React.useState('idle') // idle | locating | success | error | denied
+  const [locError, setLocError] = React.useState('')
+  const [radiusKm, setRadiusKm] = React.useState(5)
+  const [isFetchingPharmacies, setIsFetchingPharmacies] = React.useState(false)
+  const [livePharmacies, setLivePharmacies] = React.useState(null) // null = not fetched, [] = fetched empty
+  const [liveError, setLiveError] = React.useState('')
+  const [manualQuery, setManualQuery] = React.useState('')
+  const [showManualInput, setShowManualInput] = React.useState(false)
+
   const mediaRecorder = React.useRef(null)
   const stream = React.useRef(null)
   const chunks = React.useRef([])
@@ -172,8 +253,138 @@ function App() {
     clearInterval(timer.current); mediaRecorder.current?.stop(); stream.current?.getTracks().forEach((t) => t.stop())
     if (audioUrl) URL.revokeObjectURL(audioUrl)
     if (networkAudio) { networkAudio.pause(); networkAudio = null }
-    setStage('start'); setRecording(false); setAudioUrl(''); setAudioName(''); setSelectedScenario(null); setResult(null); setRecordSeconds(0); setCallerNumber(''); window.speechSynthesis?.cancel()
+    setStage('start'); setRecording(false); setAudioUrl(''); setAudioName(''); setSelectedScenario(null); setResult(null); setRecordSeconds(0); setCallerNumber('');
+    // reset location/finder
+    setUserLocation(null); setLocStatus('idle'); setLocError(''); setRadiusKm(5); setIsFetchingPharmacies(false); setLivePharmacies(null); setLiveError(''); setManualQuery(''); setShowManualInput(false)
+    window.speechSynthesis?.cancel()
   }
+
+  // ---- location helpers ----
+  async function fetchLivePharmacies(lat, lon) {
+    setIsFetchingPharmacies(true); setLiveError('')
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 8000)
+    try {
+      const query = `[out:json][timeout:12];node["amenity"="pharmacy"](around:15000,${lat},${lon});out 12;`
+      const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`
+      const res = await fetch(url, { signal: controller.signal })
+      if (!res.ok) throw new Error(`Overpass ${res.status}`)
+      const data = await res.json()
+      const nodes = (data.elements || []).filter((n) => n.lat && n.lon).map((n, i) => ({
+        id: `osm-${n.id || i}`,
+        name: n.tags?.name || n.tags?.brand || 'Pharmacy',
+        branch: n.tags?.branch || n.tags?.operator || '',
+        address: [n.tags?.['addr:street'], n.tags?.['addr:city']].filter(Boolean).join(', ') || n.tags?.['addr:full'] || 'Nearby pharmacy (OpenStreetMap)',
+        city: n.tags?.['addr:city'] || '',
+        lat: n.lat,
+        lon: n.lon,
+        phone: n.tags?.phone || n.tags?.['contact:phone'] || '',
+        hours: n.tags?.opening_hours || 'Check local hours',
+        source: 'osm',
+      }))
+      if (nodes.length) setLivePharmacies(nodes)
+      else setLivePharmacies(null)
+    } catch (e) {
+      if (e.name !== 'AbortError') setLiveError(e.message || 'Live lookup failed')
+      setLivePharmacies(null)
+    } finally {
+      clearTimeout(timeout); setIsFetchingPharmacies(false)
+    }
+  }
+
+  function requestGpsLocation() {
+    if (!navigator.geolocation) {
+      fetchIpLocation()
+      return
+    }
+    setLocStatus('locating'); setLocError(''); setShowManualInput(false)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude, accuracy } = pos.coords
+        setUserLocation({ lat: latitude, lon: longitude, accuracy, source: 'gps', city: '' })
+        setLocStatus('success')
+        fetchLivePharmacies(latitude, longitude)
+      },
+      (err) => {
+        if (err.code === 1) {
+          setLocStatus('denied'); setLocError(err.message || 'Permission denied')
+          setShowManualInput(true)
+        } else {
+          // try IP fallback automatically for other errors
+          fetchIpLocation()
+        }
+      },
+      { enableHighAccuracy: true, timeout: 9000, maximumAge: 60000 }
+    )
+  }
+
+  async function fetchIpLocation() {
+    setLocStatus('locating'); setLocError('')
+    const controllers = []
+    const tryFetch = async (url, parser) => {
+      const c = new AbortController(); controllers.push(c)
+      const t = setTimeout(() => c.abort(), 6000)
+      try {
+        const r = await fetch(url, { signal: c.signal })
+        if (!r.ok) throw new Error(String(r.status))
+        const j = await r.json()
+        const parsed = parser(j)
+        if (parsed && parsed.lat && parsed.lon) return parsed
+        throw new Error('Invalid response')
+      } finally { clearTimeout(t) }
+    }
+    try {
+      // freeipapi does CORS well; ipapi.co as second
+      let loc = null
+      try { loc = await tryFetch('https://freeipapi.com/api/json', (j) => ({ lat: j.latitude ?? j.lat, lon: j.longitude ?? j.lon, city: j.cityName || j.city || '' })) } catch {}
+      if (!loc || !loc.lat) {
+        try { loc = await tryFetch('https://ipapi.co/json/', (j) => ({ lat: j.latitude, lon: j.longitude, city: j.city || '' })) } catch {}
+      }
+      if (loc && loc.lat) {
+        setUserLocation({ lat: loc.lat, lon: loc.lon, source: 'ip', city: loc.city || '', accuracy: 5000 })
+        setLocStatus('success')
+        fetchLivePharmacies(loc.lat, loc.lon)
+        return
+      }
+      throw new Error('IP location unavailable')
+    } catch (e) {
+      setLocStatus('error'); setLocError(language === 'zh' ? '无法获取位置，请手动输入。' : language === 'bm' ? 'Tidak dapat kesan lokasi. Sila masukkan manual.' : 'Could not detect location. Enter manually.')
+      setShowManualInput(true)
+    } finally { controllers.forEach((c) => c.abort?.()) }
+  }
+
+  function handleManualSearch(e) {
+    e?.preventDefault()
+    const q = manualQuery.trim().toLowerCase()
+    if (!q) return
+    // simple lookup: match city or name in mock data, pick first match as center
+    const match = MOCK_PHARMACIES.find((p) => p.city.toLowerCase().includes(q) || p.name.toLowerCase().includes(q) || p.address.toLowerCase().includes(q))
+    if (match) {
+      setUserLocation({ lat: match.lat, lon: match.lon, source: 'manual', city: match.city })
+      setLocStatus('success'); setLocError(''); setShowManualInput(false)
+      fetchLivePharmacies(match.lat, match.lon)
+    } else {
+      setLocError(language === 'zh' ? '未找到地点，尝试 KL / PJ / Shah Alam' : language === 'bm' ? 'Lokasi tidak dijumpai. Cuba KL / PJ / Shah Alam' : 'Place not found. Try KL / PJ / Shah Alam')
+    }
+  }
+
+  // derived pharmacy list
+  const pharmacyBase = livePharmacies && livePharmacies.length ? livePharmacies : MOCK_PHARMACIES
+  const pharmaciesWithDistance = React.useMemo(() => {
+    if (!userLocation) return []
+    return pharmacyBase.map((p) => ({ ...p, distance: haversineKm(userLocation.lat, userLocation.lon, p.lat, p.lon) }))
+  }, [userLocation, pharmacyBase])
+  const filteredPharmacies = React.useMemo(() => {
+    return pharmaciesWithDistance.filter((p) => p.distance <= radiusKm).sort((a, b) => a.distance - b.distance).slice(0, 8)
+  }, [pharmaciesWithDistance, radiusKm])
+  const countByRadius = React.useMemo(() => {
+    if (!userLocation) return { 5: 0, 10: 0, 15: 0 }
+    return {
+      5: pharmaciesWithDistance.filter((p) => p.distance <= 5).length,
+      10: pharmaciesWithDistance.filter((p) => p.distance <= 10).length,
+      15: pharmaciesWithDistance.filter((p) => p.distance <= 15).length,
+    }
+  }, [pharmaciesWithDistance, userLocation])
 
   const copy = {
     en: {
@@ -190,6 +401,31 @@ function App() {
       previewSub: 'Warm, local, unhurried — like a Klinik assistant.',
       noteTitle: 'Why voice?',
       noteSub: 'For low-literacy, low-bandwidth. Works on a basic phone.',
+      careEyebrow: 'After-call support',
+      careTitle: 'Suggested care items',
+      careSub: 'Ask your pharmacist — info only, not a prescription. Availability varies by pharmacy.',
+      careTag: 'Info only',
+      pharmacyEyebrow: 'Nearby help',
+      pharmacyTitle: 'Closest pharmacies to you',
+      pharmacySub: 'We use your location only to find nearby help. Not stored. IP fallback if GPS is off.',
+      pharmacyCta: 'Find pharmacies near me',
+      pharmacyLocating: 'Locating you…',
+      pharmacyGps: 'Precise (GPS)',
+      pharmacyIp: 'Approximate (IP)',
+      pharmacyManual: 'Manual',
+      pharmacyDenied: 'Location denied — enter town or tap Use IP location',
+      pharmacyUseIp: 'Use IP location',
+      pharmacyManualPlaceholder: 'Try: KL, Petaling Jaya, Shah Alam, Puchong…',
+      pharmacySearch: 'Search',
+      pharmacyDirections: 'Directions',
+      pharmacyCall: 'Call',
+      pharmacyNoResult: 'No pharmacy within',
+      pharmacyTryLarger: 'Try a larger radius',
+      pharmacyShowing: 'Showing',
+      pharmacyWithin: 'within',
+      pharmacyLive: 'Live (OSM)',
+      pharmacySample: 'Sample list',
+      pharmacyAccuracyNote: 'Tip: enable GPS for precise results.',
     },
     bm: {
       kicker: 'Demo talian luar bandar — NafasCheck',
@@ -205,6 +441,31 @@ function App() {
       previewSub: 'Hangat, tempatan, tidak tergesa — seperti pembantu Klinik.',
       noteTitle: 'Kenapa suara?',
       noteSub: 'Untuk literasi rendah & jalur lebar terhad.',
+      careEyebrow: 'Sokongan selepas panggilan',
+      careTitle: 'Item penjagaan dicadangkan',
+      careSub: 'Rujuk ahli farmasi — maklumat sahaja, bukan preskripsi.',
+      careTag: 'Maklumat sahaja',
+      pharmacyEyebrow: 'Bantuan berdekatan',
+      pharmacyTitle: 'Farmasi terdekat dengan anda',
+      pharmacySub: 'Lokasi hanya untuk cari bantuan berdekatan. Tidak disimpan. Guna IP jika GPS mati.',
+      pharmacyCta: 'Cari farmasi berhampiran',
+      pharmacyLocating: 'Mengesan lokasi…',
+      pharmacyGps: 'Tepat (GPS)',
+      pharmacyIp: 'Anggaran (IP)',
+      pharmacyManual: 'Manual',
+      pharmacyDenied: 'Akses lokasi ditolak — masukkan bandar atau guna lokasi IP',
+      pharmacyUseIp: 'Guna lokasi IP',
+      pharmacyManualPlaceholder: 'Cuba: KL, Petaling Jaya, Shah Alam, Puchong…',
+      pharmacySearch: 'Cari',
+      pharmacyDirections: 'Arah',
+      pharmacyCall: 'Hubungi',
+      pharmacyNoResult: 'Tiada farmasi dalam',
+      pharmacyTryLarger: 'Cuba radius lebih besar',
+      pharmacyShowing: 'Menunjukkan',
+      pharmacyWithin: 'dalam',
+      pharmacyLive: 'Live (OSM)',
+      pharmacySample: 'Senarai contoh',
+      pharmacyAccuracyNote: 'Tip: aktifkan GPS untuk keputusan tepat.',
     },
     zh: {
       kicker: '乡村热线演示 — NafasCheck',
@@ -220,6 +481,31 @@ function App() {
       previewSub: '温暖、本地、不急促——像诊所助理。',
       noteTitle: '为什么用语音？',
       noteSub: '为低识字率、低带宽设计，普通手机可用。',
+      careEyebrow: '通话后支持',
+      careTitle: '建议护理用品',
+      careSub: '请咨询药剂师——仅供参考，非处方。库存以门店为准。',
+      careTag: '仅供参考',
+      pharmacyEyebrow: '附近帮助',
+      pharmacyTitle: '离您最近的药房',
+      pharmacySub: '仅用位置查找附近帮助，不会保存。GPS 关闭时使用 IP 近似定位。',
+      pharmacyCta: '查找附近药房',
+      pharmacyLocating: '正在定位…',
+      pharmacyGps: '精准 (GPS)',
+      pharmacyIp: '近似 (IP)',
+      pharmacyManual: '手动',
+      pharmacyDenied: '定位被拒绝——请输入城镇或使用 IP 定位',
+      pharmacyUseIp: '使用 IP 定位',
+      pharmacyManualPlaceholder: '试试：吉隆坡、八打灵、莎阿南、蒲种…',
+      pharmacySearch: '搜索',
+      pharmacyDirections: '导航',
+      pharmacyCall: '拨打',
+      pharmacyNoResult: '范围内暂无药房',
+      pharmacyTryLarger: '试试更大范围',
+      pharmacyShowing: '显示',
+      pharmacyWithin: '内',
+      pharmacyLive: '实时 (OSM)',
+      pharmacySample: '示例列表',
+      pharmacyAccuracyNote: '提示：开启 GPS 获得更精准结果。',
     }
   }[language]
 
@@ -229,6 +515,7 @@ function App() {
     zh: { result: '分析完成', analyzing: 'AI 正在分析', recording: '语音消息已就绪', connected: '热线已接通', start: '准备拨打' },
   }
   const stageLabel = stageLabels[language][stage]
+  const careItems = CARE_PRODUCTS[selectedScenario || 'mild']?.[language] || CARE_PRODUCTS.mild[language]
 
   return (
     <main className="app">
@@ -405,6 +692,158 @@ function App() {
                 <strong>{language === 'zh' ? (result.tone === 'danger' ? '下一步：请今天就医' : '下一步：在家观察') : language === 'bm' ? (result.tone === 'danger' ? 'Langkah seterusnya: dapatkan rawatan hari ini' : 'Langkah seterusnya: pantau di rumah') : (result.tone === 'danger' ? 'Next step: seek care today' : 'Next step: monitor at home')}</strong>
                 <span>{language === 'zh' ? (result.tone === 'danger' ? '将通过短信发送位置支持和政府诊所路线。' : '将通过短信发送居家护理建议。若呼吸恶化请再次来电。') : language === 'bm' ? (result.tone === 'danger' ? 'Sokongan lokasi & arah Klinik Kesihatan akan dihantar via SMS.' : 'Nasihat penjagaan di rumah via SMS. Hubungi semula jika bertambah buruk.') : (result.tone === 'danger' ? 'Location support and Klinik Kesihatan directions would be sent by SMS.' : 'Home care advice would be sent by SMS. Call again if breathing worsens.')}</span>
               </div>
+
+              {/* --- Care products (info only) --- */}
+              <div className="section-divider" />
+              <div className="care-section">
+                <div className="section-head">
+                  <div className="section-head-icon"><Package size={16} /></div>
+                  <div>
+                    <p className="section-eyebrow">{copy.careEyebrow}</p>
+                    <h3>{copy.careTitle}</h3>
+                    <p className="section-sub">{copy.careSub}</p>
+                  </div>
+                  <span className="info-badge"><AlertCircle size={11} /> {copy.careTag}</span>
+                </div>
+                <div className="care-grid">
+                  {careItems.map((item) => (
+                    <div key={item.name} className="care-card">
+                      <span className="care-tag">{item.tag}</span>
+                      <strong>{item.name}</strong>
+                      <p>{item.desc}</p>
+                      <small>{language === 'zh' ? '在下方药房有售 · 咨询药剂师' : language === 'bm' ? 'Ada di farmasi bawah · tanya ahli farmasi' : 'Found at pharmacies below · ask pharmacist'}</small>
+                    </div>
+                  ))}
+                </div>
+                <p className="care-footnote">{language === 'zh' ? '仅供参考，非处方建议。请遵医嘱并咨询持证药剂师。' : language === 'bm' ? 'Maklumat sahaja — bukan preskripsi. Rujuk ahli farmasi bertauliah.' : 'Info only — not a prescription. Consult a licensed pharmacist.'}</p>
+              </div>
+
+              {/* --- Nearby pharmacies (GPS / IP + 5/10/15 km) --- */}
+              <div className="pharmacy-section">
+                <div className="section-head">
+                  <div className="section-head-icon accent"><Store size={16} /></div>
+                  <div>
+                    <p className="section-eyebrow">{copy.pharmacyEyebrow}</p>
+                    <h3>{copy.pharmacyTitle}</h3>
+                    <p className="section-sub">{copy.pharmacySub}</p>
+                  </div>
+                </div>
+
+                {!userLocation && locStatus === 'idle' && (
+                  <div className="loc-cta">
+                    <div className="loc-cta-text">
+                      <strong><MapPin size={14} /> {copy.pharmacyTitle}</strong>
+                      <span>{language === 'zh' ? '允许定位以按 5 / 10 / 15 公里显示最近药房。支持 GPS 与 IP 定位。' : language === 'bm' ? 'Benarkan lokasi untuk lihat farmasi terdekat mengikut 5 / 10 / 15 km. Sokong GPS & IP.' : 'Allow location to see closest pharmacies in 5 / 10 / 15 km. GPS + IP supported.'}</span>
+                    </div>
+                    <div className="loc-cta-actions">
+                      <button className="loc-btn primary" onClick={requestGpsLocation}><LocateFixed size={15} /> {copy.pharmacyCta}</button>
+                      <button className="loc-btn ghost" onClick={fetchIpLocation}><Globe2 size={14} /> {copy.pharmacyUseIp}</button>
+                    </div>
+                    <button className="loc-manual-toggle" onClick={() => setShowManualInput((v) => !v)}><Search size={13} /> {language === 'zh' ? '手动输入地点' : language === 'bm' ? 'Masukkan lokasi manual' : 'Enter location manually'}</button>
+                    {showManualInput && (
+                      <form className="manual-row" onSubmit={handleManualSearch}>
+                        <input value={manualQuery} onChange={(e) => setManualQuery(e.target.value)} placeholder={copy.pharmacyManualPlaceholder} aria-label="Manual location" />
+                        <button type="submit"><Search size={14} /> {copy.pharmacySearch}</button>
+                      </form>
+                    )}
+                  </div>
+                )}
+
+                {locStatus === 'locating' && (
+                  <div className="loc-banner locating"><LocateFixed size={14} className="spin" /> {copy.pharmacyLocating}</div>
+                )}
+
+                {(locStatus === 'denied' || locStatus === 'error') && !userLocation && (
+                  <div className="loc-banner error">
+                    <AlertCircle size={14} /> {locError || copy.pharmacyDenied}
+                    <div className="loc-banner-actions">
+                      <button className="loc-btn small ghost" onClick={requestGpsLocation}><LocateFixed size={13} /> Retry GPS</button>
+                      <button className="loc-btn small primary" onClick={fetchIpLocation}><Globe2 size={13} /> {copy.pharmacyUseIp}</button>
+                    </div>
+                    <form className="manual-row" onSubmit={handleManualSearch}>
+                      <input value={manualQuery} onChange={(e) => setManualQuery(e.target.value)} placeholder={copy.pharmacyManualPlaceholder} aria-label="Manual location" />
+                      <button type="submit"><Search size={14} /> {copy.pharmacySearch}</button>
+                    </form>
+                  </div>
+                )}
+
+                {userLocation && (
+                  <>
+                    <div className="loc-banner success">
+                      <MapPin size={14} />
+                      <span>
+                        {userLocation.source === 'gps' ? copy.pharmacyGps : userLocation.source === 'ip' ? copy.pharmacyIp : copy.pharmacyManual}
+                        {userLocation.city ? ` · ${userLocation.city}` : ''} · {userLocation.lat.toFixed(4)}, {userLocation.lon.toFixed(4)}
+                      </span>
+                      <span className={`live-pill ${livePharmacies ? 'live' : 'sample'}`}>{livePharmacies ? copy.pharmacyLive : copy.pharmacySample}</span>
+                      <button className="loc-change" onClick={() => { setUserLocation(null); setLocStatus('idle'); setLocError(''); setLivePharmacies(null) }}>{language === 'zh' ? '更改' : language === 'bm' ? 'Tukar' : 'Change'}</button>
+                    </div>
+                    {userLocation.source === 'ip' && <p className="loc-hint"><AlertCircle size={11} /> {copy.pharmacyAccuracyNote}</p>}
+                    {isFetchingPharmacies && <div className="pharmacy-skeleton"><i /><i /><i /></div>}
+                    {liveError && <p className="loc-hint error"><AlertCircle size={11} /> {liveError} — {copy.pharmacySample}</p>}
+
+                    <div className="radius-tabs" role="tablist" aria-label="Distance filter">
+                      {[5, 10, 15].map((r) => (
+                        <button key={r} role="tab" aria-selected={radiusKm === r} className={radiusKm === r ? 'active' : ''} onClick={() => setRadiusKm(r)}>
+                          {r} km <em>({countByRadius[r]})</em>
+                        </button>
+                      ))}
+                    </div>
+
+                    {filteredPharmacies.length === 0 ? (
+                      <div className="pharmacy-empty">
+                        <Store size={20} />
+                        <strong>{copy.pharmacyNoResult} {radiusKm} km</strong>
+                        <span>{copy.pharmacyTryLarger}</span>
+                        <div className="radius-tabs small">
+                          {[5, 10, 15].filter((r) => countByRadius[r] > 0).map((r) => (
+                            <button key={r} onClick={() => setRadiusKm(r)}>{r} km ({countByRadius[r]})</button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <p className="pharmacy-count">{copy.pharmacyShowing} {filteredPharmacies.length} {copy.pharmacyWithin} {radiusKm} km</p>
+                        <div className="pharmacy-list">
+                          {filteredPharmacies.map((p) => (
+                            <div key={p.id} className="pharmacy-card">
+                              <div className="pharmacy-head">
+                                <span className="pharmacy-icon"><Store size={15} /></span>
+                                <div>
+                                  <strong>{p.name}{p.branch ? ` · ${p.branch}` : ''}</strong>
+                                  <span className="pharmacy-addr">{p.address}{p.city ? ` · ${p.city}` : ''}</span>
+                                </div>
+                                <span className="pharmacy-dist"><Navigation size={11} /> {formatDistance(p.distance)}</span>
+                              </div>
+                              <div className="pharmacy-meta">
+                                {p.phone && <a className="meta-chip" href={`tel:${p.phone.replace(/[^0-9+]/g, '')}`}><Phone size={11} /> {p.phone}</a>}
+                                <span className="meta-chip"><Clock3 size={11} /> {p.hours}</span>
+                                {p.source === 'osm' && <span className="meta-chip osm">OSM</span>}
+                              </div>
+                              <div className="pharmacy-actions">
+                                <a className="pharmacy-btn primary" href={`https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}`} target="_blank" rel="noreferrer"><Navigation size={13} /> {copy.pharmacyDirections}</a>
+                                <a className="pharmacy-btn ghost" href={`https://www.openstreetmap.org/?mlat=${p.lat}&mlon=${p.lon}#map=16/${p.lat}/${p.lon}`} target="_blank" rel="noreferrer"><MapPin size={13} /> OSM</a>
+                                {p.phone && <a className="pharmacy-btn ghost" href={`tel:${p.phone.replace(/[^0-9+]/g, '')}`}><Phone size={13} /> {copy.pharmacyCall}</a>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                    {!showManualInput && (
+                      <button className="loc-manual-toggle" onClick={() => setShowManualInput(true)}><Search size={13} /> {language === 'zh' ? '试试其他地点' : language === 'bm' ? 'Cuba lokasi lain' : 'Try another place'}</button>
+                    )}
+                    {showManualInput && (
+                      <form className="manual-row" onSubmit={handleManualSearch}>
+                        <input value={manualQuery} onChange={(e) => setManualQuery(e.target.value)} placeholder={copy.pharmacyManualPlaceholder} aria-label="Manual location" />
+                        <button type="submit"><Search size={14} /> {copy.pharmacySearch}</button>
+                      </form>
+                    )}
+                    {locError && <p className="loc-hint error"><AlertCircle size={11} /> {locError}</p>}
+                  </>
+                )}
+              </div>
+
               <button className="again-btn" onClick={reset}>{language === 'zh' ? '再试一条语音' : language === 'bm' ? 'Cuba mesej lain' : 'Try another voice message'} <ArrowRight size={15} /></button>
             </div>
           )}
@@ -412,7 +851,7 @@ function App() {
       </section>
 
       <footer>
-        <span>Buildability demo · Not a medical diagnosis · No data stored</span>
+        <span>Buildability demo · Not a medical diagnosis · No data stored{userLocation ? ' · Location not stored' : ''}</span>
         <span>Designed for low-bandwidth · Works on basic phones · Rural-first</span>
       </footer>
     </main>
